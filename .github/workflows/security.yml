@@ -63,6 +63,22 @@ jobs:
           fi
           echo "✅ No dangerous patterns found."
 
+      - name : Send email alert on failure
+        if: failure()    # ← only runs if above step failed
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🚨 XSS Threat Detected in ${{ github.repository }}"
+          to: your@email.com
+          from: your@email.com
+          body: |
+            XSS threat detected in commit ${{ github.sha }}
+            Branch: ${{ github.ref }}
+            Check Actions: ${{ github.server_url }}/${{ github.repository }}/actions
+
   # ── 3. CodeQL analysis ───────────────────────────────────────
   codeql:
     name: CodeQL Static Analysis
